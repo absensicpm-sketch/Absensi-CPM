@@ -1,5 +1,5 @@
 // ==========================================================
-// *** FILE: script.js (FINAL PERBAIKAN) ***
+// *** FILE: script.js (KODE FINAL DAN LENGKAP) ***
 // ==========================================================
 
 // SPREADSHEET_ID dan SHEET_ID (GID) yang sudah dikonfirmasi
@@ -10,65 +10,49 @@ const URL_SHEET = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz
 const tableElement = document.getElementById('attendance-table');
 
 /**
- * Menampilkan pesan status (loading atau error) di dalam tabel.
- * @param {string} message - Pesan yang akan ditampilkan.
+ * Fungsi untuk memformat nilai tanggal/waktu dari format Google Sheets JSON
+ * menjadi string yang mudah dibaca (e.g., 01/12/2025 10:00).
  */
-function setTableStatus(message, isError = false) {
-    const statusClass = isError ? 'error-message' : 'loading-message';
-    tableElement.innerHTML = `<tr><td colspan="100" class="${statusClass}">${message}</td></tr>`;
-}
-
-// TEMPATKAN FUNGSI INI DI ATAS FUNGSI fetchData() di script.js
 function formatGoogleSheetDate(cellValue) {
-    // Memeriksa apakah nilai adalah string yang mengandung "Date("
+    // Periksa apakah nilai adalah string yang mengandung "Date("
     if (typeof cellValue === 'string' && cellValue.startsWith('Date(')) {
         // Ekstrak angka-angka dari string (Tahun, Bulan, Hari, Jam, Menit, Detik)
         const parts = cellValue.match(/\d+/g).map(Number);
 
-        // Jika ada angka yang terekstrak
         if (parts.length >= 3) {
-            // Bulan di Sheets dimulai dari 0 (Januari)
+            // Catatan: Bulan di Sheets API dimulai dari 0 (0=Jan, 10=Nov)
             const year = parts[0];
             const month = parts[1]; 
             const day = parts[2];
-            
-            // Jam, Menit, Detik (jika ada)
             const hour = parts[3] || 0;
             const minute = parts[4] || 0;
             
-            // Membuat objek Date baru
             const date = new Date(year, month, day, hour, minute);
             
-            // Mengembalikan tanggal dalam format yang lebih mudah dibaca (misalnya: 17/11/2025 10:00)
+            // Format tanggal dan waktu sesuai Bahasa Indonesia
             return date.toLocaleDateString('id-ID', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit'
-            }).replace(',', ''); // Hapus koma antara tanggal dan waktu
+            }).replace(',', ''); 
         }
     }
-    return cellValue; // Kembalikan nilai asli jika bukan format DateSheets
+    return cellValue; 
 }
 
-// Lalu, ubah bagian ini di dalam fetchData()
-// Carilah baris: const cellValue = cell && cell.v !== undefined ? cell.v : '';
+/**
+ * Menampilkan pesan status (loading atau error) di dalam tabel.
+ */
+function setTableStatus(message, isError = false) {
+    const statusClass = isError ? 'error-message' : 'loading-message';
+    // Gunakan <td> colspan besar untuk memastikan pesan terlihat di tengah
+    tableElement.innerHTML = `<tr><td colspan="100" class="${statusClass}">${message}</td></tr>`;
+}
 
-rows.forEach(row => {
-    htmlContent += '<tr>';
-    row.c.forEach(cell => {
-        const rawValue = cell && cell.v !== undefined ? cell.v : '';
-        
-        // GUNAKAN FUNGSI FORMAT DI SINI:
-        const cellValue = formatGoogleSheetDate(rawValue); 
-        
-        htmlContent += `<td>${cellValue}</td>`;
-    });
-    htmlContent += '</tr>';
-});
+
 async function fetchData() {
-    // Tampilkan pesan loading sebelum mengambil data
     setTableStatus('Memuat Data Absensi...', false); 
 
     try {
@@ -93,7 +77,11 @@ async function fetchData() {
         rows.forEach(row => {
             htmlContent += '<tr>';
             row.c.forEach(cell => {
-                const cellValue = cell && cell.v !== undefined ? cell.v : '';
+                const rawValue = cell && cell.v !== undefined ? cell.v : '';
+                
+                // Panggil fungsi format tanggal
+                const cellValue = formatGoogleSheetDate(rawValue); 
+                
                 htmlContent += `<td>${cellValue}</td>`;
             });
             htmlContent += '</tr>';
@@ -109,11 +97,9 @@ async function fetchData() {
         const errorMessage = `Error: Gagal memuat data. Mohon pastikan 
                               1) Akses Google Sheets sudah disetel "Anyone with the link" (Viewer), 
                               2) ID Spreadsheet dan GID Sheet sudah benar, 
-                              3) Tidak ada blokir CORS.`;
+                              3) Coba hapus cache browser HP Anda.`;
         setTableStatus(errorMessage, true);
     }
 }
 
-// Panggil fungsi fetchData setelah dokumen HTML selesai dimuat
 document.addEventListener('DOMContentLoaded', fetchData);
-

@@ -18,7 +18,55 @@ function setTableStatus(message, isError = false) {
     tableElement.innerHTML = `<tr><td colspan="100" class="${statusClass}">${message}</td></tr>`;
 }
 
+// TEMPATKAN FUNGSI INI DI ATAS FUNGSI fetchData() di script.js
+function formatGoogleSheetDate(cellValue) {
+    // Memeriksa apakah nilai adalah string yang mengandung "Date("
+    if (typeof cellValue === 'string' && cellValue.startsWith('Date(')) {
+        // Ekstrak angka-angka dari string (Tahun, Bulan, Hari, Jam, Menit, Detik)
+        const parts = cellValue.match(/\d+/g).map(Number);
 
+        // Jika ada angka yang terekstrak
+        if (parts.length >= 3) {
+            // Bulan di Sheets dimulai dari 0 (Januari)
+            const year = parts[0];
+            const month = parts[1]; 
+            const day = parts[2];
+            
+            // Jam, Menit, Detik (jika ada)
+            const hour = parts[3] || 0;
+            const minute = parts[4] || 0;
+            
+            // Membuat objek Date baru
+            const date = new Date(year, month, day, hour, minute);
+            
+            // Mengembalikan tanggal dalam format yang lebih mudah dibaca (misalnya: 17/11/2025 10:00)
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(',', ''); // Hapus koma antara tanggal dan waktu
+        }
+    }
+    return cellValue; // Kembalikan nilai asli jika bukan format DateSheets
+}
+
+// Lalu, ubah bagian ini di dalam fetchData()
+// Carilah baris: const cellValue = cell && cell.v !== undefined ? cell.v : '';
+
+rows.forEach(row => {
+    htmlContent += '<tr>';
+    row.c.forEach(cell => {
+        const rawValue = cell && cell.v !== undefined ? cell.v : '';
+        
+        // GUNAKAN FUNGSI FORMAT DI SINI:
+        const cellValue = formatGoogleSheetDate(rawValue); 
+        
+        htmlContent += `<td>${cellValue}</td>`;
+    });
+    htmlContent += '</tr>';
+});
 async function fetchData() {
     // Tampilkan pesan loading sebelum mengambil data
     setTableStatus('Memuat Data Absensi...', false); 
@@ -68,3 +116,4 @@ async function fetchData() {
 
 // Panggil fungsi fetchData setelah dokumen HTML selesai dimuat
 document.addEventListener('DOMContentLoaded', fetchData);
+

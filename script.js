@@ -1,28 +1,37 @@
 // ==========================================================
-// *** FILE: script.js ***
+// *** FILE: script.js (FINAL PERBAIKAN) ***
 // ==========================================================
 
 // SPREADSHEET_ID dan SHEET_ID (GID) yang sudah dikonfirmasi
 const SPREADSHEET_ID = '1KsTjy_SedUlpsCZXIRwy3x2sWRR-XXN4uvFgugVjDxo'; 
 const SHEET_ID = '1387796749'; 
 
-// URL untuk mengambil data JSON dari Google Sheets
 const URL_SHEET = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_ID}`;
 const tableElement = document.getElementById('attendance-table');
 
+/**
+ * Menampilkan pesan status (loading atau error) di dalam tabel.
+ * @param {string} message - Pesan yang akan ditampilkan.
+ */
+function setTableStatus(message, isError = false) {
+    const statusClass = isError ? 'error-message' : 'loading-message';
+    tableElement.innerHTML = `<tr><td colspan="100" class="${statusClass}">${message}</td></tr>`;
+}
+
+
 async function fetchData() {
+    // Tampilkan pesan loading sebelum mengambil data
+    setTableStatus('Memuat Data Absensi...', false); 
+
     try {
-        // Ambil data dari Google Sheets
         const response = await fetch(URL_SHEET);
         const dataText = await response.text();
         
-        // Membersihkan string JSON yang tidak standar (padding) dari Google Sheets
-        // Google Sheets API membungkus JSON di dalam 'google.visualization.Query.setResponse(...);'
+        // Membersihkan string JSON
         const jsonString = dataText.substring(47).slice(0, -2);
         const jsonData = JSON.parse(jsonString);
         
         const rows = jsonData.table.rows;
-        // Mengambil label header kolom (baris pertama Sheets)
         const header = jsonData.table.cols.map(col => col.label);
         
         // 1. Membangun Header Tabel
@@ -36,9 +45,7 @@ async function fetchData() {
         rows.forEach(row => {
             htmlContent += '<tr>';
             row.c.forEach(cell => {
-                // Mengambil nilai sel (v), jika kosong atau undefined, tampilkan string kosong
                 const cellValue = cell && cell.v !== undefined ? cell.v : '';
-                
                 htmlContent += `<td>${cellValue}</td>`;
             });
             htmlContent += '</tr>';
@@ -47,16 +54,15 @@ async function fetchData() {
 
         // Menampilkan tabel ke elemen HTML
         tableElement.innerHTML = htmlContent;
-        tableElement.caption.textContent = 'Data Absensi Berhasil Dimuat';
 
     } catch (error) {
         console.error("Gagal mengambil data dari Google Sheets:", error);
-        // Menampilkan pesan error yang membantu pengguna
-        tableElement.innerHTML = `<caption>Error: Gagal memuat data. Mohon pastikan 
-                                   1) Akses Google Sheets sudah disetel "Anyone with the link", 
-                                   2) SPREADSHEET_ID dan SHEET_ID sudah benar.
-                                   (Lihat console browser untuk detail error: ${error.message})
-                                   </caption>`;
+        
+        const errorMessage = `Error: Gagal memuat data. Mohon pastikan 
+                              1) Akses Google Sheets sudah disetel "Anyone with the link" (Viewer), 
+                              2) ID Spreadsheet dan GID Sheet sudah benar, 
+                              3) Tidak ada blokir CORS.`;
+        setTableStatus(errorMessage, true);
     }
 }
 

@@ -1,3 +1,7 @@
+/* ==========================================================
+// *** FILE: style.css (KODE FINAL DAN LENGKAP) ***
+// ========================================================== */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f7f6;
@@ -8,12 +12,16 @@ body {
 }
 
 .container {
-    max-width: 1100px;
+    /* Mengatur lebar maksimum 95% agar lebih fleksibel di berbagai layar */
+    max-width: 95%; 
     margin: 40px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Kunci Solusi Mobile: Memungkinkan scroll horizontal jika konten terlalu lebar */
+    overflow-x: auto; 
 }
 
 h1 {
@@ -31,10 +39,11 @@ p {
 /* Styling untuk Tabel */
 #attendance-table {
     width: 100%;
+    /* Mengatur lebar minimum agar tabel tidak menyusut terlalu kecil di HP */
+    min-width: 800px; 
     border-collapse: collapse;
     margin: 25px 0;
     font-size: 0.9em;
-    min-width: 400px;
 }
 
 #attendance-table thead tr {
@@ -48,6 +57,7 @@ p {
 #attendance-table td {
     padding: 12px 15px;
     border: 1px solid #dddddd;
+    white-space: nowrap; /* Mencegah teks tanggal/waktu terpotong ke bawah */
 }
 
 #attendance-table tbody tr {
@@ -62,6 +72,16 @@ p {
     border-bottom: 2px solid #007bff;
 }
 
+/* Styling untuk pesan Error/Loading di dalam tabel */
+.loading-message, .error-message {
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+}
+.error-message {
+    color: #dc3545; /* Merah */
+}
+
 /* Footer Styling */
 footer {
     text-align: center;
@@ -70,28 +90,4 @@ footer {
     color: #999;
     font-size: 0.8em;
     border-top: 1px solid #eaeaea;
-}
-
-/* Styling Tambahan untuk mengatasi tabel lebar */
-
-/* Memberi batas lebar maksimum untuk sel-sel agar tabel tidak melebar tak terbatas */
-#attendance-table td, 
-#attendance-table th {
-    max-width: 150px; /* Atur nilai ini sesuai kebutuhan, misalnya 120px */
-    white-space: nowrap; /* Mencegah teks tanggal/waktu terpotong ke bawah */
-    overflow: hidden; 
-    text-overflow: ellipsis; /* Menampilkan titik-titik jika teks terlalu panjang */
-}
-
-/* Memastikan konten website tidak terlalu melebar */
-.container {
-    max-width: 95%; /* Ganti 1100px menjadi 95% agar lebih fleksibel */
-}
-
-/* Mengaktifkan scroll horizontal jika tabel terlalu lebar */
-@media screen and (max-width: 1100px) {
-    .container {
-        /* Tambahkan wrapper di index.html jika ini tidak bekerja */
-        overflow-x: auto; 
-    }
 }

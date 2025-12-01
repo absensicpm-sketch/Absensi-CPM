@@ -95,3 +95,20 @@ footer {
         overflow-x: auto; 
     }
 }
+/* Pastikan Anda menambahkan ini di style.css */
+.container {
+    max-width: 95%; 
+    margin: 40px auto; 
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Bagian Kunci untuk tampilan mobile */
+    overflow-x: auto; /* Memungkinkan scroll horizontal di dalam container */
+}
+
+/* Tambahkan juga ini jika belum ada */
+#attendance-table {
+    min-width: 1000px; /* Atur lebar minimum agar tabel tidak menyusut */
+    /* ... (styling tabel lainnya) ... */
+}
